@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useState, useReducer } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useReducer,
+  useRef,
+} from "react";
+import { tokenToString } from "typescript";
 import "./App.css";
 
 const Heading = (props: { title: string }) => <h2>{props.title}</h2>;
@@ -64,13 +71,44 @@ function App() {
         throw new Error();
     }
   }, []);
+
+  const newTodoRef = useRef<HTMLInputElement>(null);
+
+  const onAddTodo = useCallback(() => {
+    if (newTodoRef.current) {
+      dispatch({
+        type: "ADD",
+        text: newTodoRef.current.value,
+      });
+      newTodoRef.current.value = "";
+    }
+  }, []);
+
   return (
-    <div>
+    <>
       <Heading title="Introduction" />
       <Box>Hello World</Box>
       <List items={["one", "two", "three"]} onClick={onListClick} />
       <Box>{JSON.stringify(payload)}</Box>
-    </div>
+
+      <Heading title="Todos" />
+      {todos.map((todo) => (
+        <div key={todo.id}>
+          {todo.text}
+          <button
+            onClick={() => {
+              dispatch({ type: "REMOVE", id: todo.id });
+            }}
+          >
+            Remove
+          </button>
+        </div>
+      ))}
+      <div>
+        <input type="text" ref={newTodoRef} />
+        <button onClick={onAddTodo}>Add Todo</button>
+      </div>
+    </>
   );
 }
 
